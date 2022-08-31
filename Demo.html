@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<title></title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+<html>
+
+
+
+<body>
+
+    <div class="w3-container">
+
+        <p>
+            This is just a dummy page to start our demo.<br />
+            In a real scenario, a similar page like this should come from your application.
+        </p>
+
+        <hr /><div class="w3-responsive">
+                  <table border=1 class="w3-table-all">
+                      <tr>
+                          <th>&nbsp</th>
+                          <th>UserID</th>
+                          <th>Table Name</th>
+                          <th>Record ID</th>
+                          <th>...</th>
+                          <th>...</th>
+                          <th>...</th>
+
+                      </tr>
+                      <tr>
+                          <td><input type="button" onclick="Demo('PROJECT', '1')" value="Demo" /></td>
+                          <td>CATHY</td>
+                          <td><b>Project</b></td>
+                          <td>1</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+
+                      </tr>
+                      <tr>
+                          <td><input type="button" onclick="Demo('CUSTOMER','1')" value="Demo" /></td>
+                          <td>CATHY</td>
+                          <td><b>Customer</b></td>
+                          <td>1</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+
+                      </tr>
+                      <tr>
+                          <td><input type="button" disabled /></td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+
+                      </tr>
+                      <tr>
+                          <td><input type="button" disabled /></td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+                          <td>...</td>
+
+                      </tr>
+                  </table>
+        </div>
+
+
+    </div>
+
+</body>
+</html>
+
+<script>
+
+    function Demo(TableName, RowID) //
+    {
+        var url = "FormLoad.htm?UserID=CATHY&TableID=" + TableName + "&RecordID=" + RowID;
+        window.location.href = url;
+
+    }
+
+</script>

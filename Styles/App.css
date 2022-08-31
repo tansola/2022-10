@@ -1,0 +1,149 @@
+﻿body {
+    background-color: powderblue;
+    font-family: "Consolas";
+    font-size: 12px
+}
+
+table
+{
+  margin-top: 10px;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+    /*
+  padding-top: 10px;
+  padding-bottom: 10px;  
+  padding-left: 10px;
+  padding-right: 10px;
+  */
+}
+
+.std_cbo
+{
+    height:50px;
+    font-family: "Consolas";
+    font-size: 14px;
+}
+
+select {
+    width: 200px;
+    height: 40px;
+    line-height: 50px;
+    -webkit-appearance: menulist-button;
+    -moz-appearance: none;
+}
+
+textarea {
+    font-family: "Consolas";
+    font-size: 10px;
+}
+
+/*
+table, th, td {
+  border: 1px solid white;
+  border-collapse: collapse;
+}
+th, td {
+  background-color: #96D4D4;
+}
+
+
+*/
+
+table-input-text
+{
+    height:30px;
+    font-family: "Consolas";
+    font-size: 14px;
+}
+
+.center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+input[type=text], select, textarea {
+
+    width: 100%; /* Full width */
+    padding: 12px; /* Some padding */
+    border: 1px solid #ccc; /* Gray border */
+    border-radius: 4px; /* Rounded borders */
+    box-sizing: border-box; /* Make sure that padding and width stays in place */
+    margin-top: 6px; /* Add a top margin */
+    margin-bottom: 16px; /* Bottom margin */
+
+    height:20px;
+    font-family: "Consolas";
+    font-size: 12px;
+
+    resize: vertical /* Allow the user to vertically resize the textarea (not horizontally) */
+
+}
+
+
+/*input[type="text"] 
+{
+    height:20px;
+    font-family: "Consolas";
+    font-size: 12px;
+}
+*/
+
+app_button {
+    font-size: 12px;  /* This is a single-line comment */
+    height: 20px;
+    width: 60px;
+}
+
+.popdate {
+    width: 100px;
+    font-family: Calibri;
+    font-size: 12px;
+}
+
+#DivForm
+{
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+
+
+}
+
+#Alert
+{
+    width: 800px;
+    font-family: "Consolas";
+    font-size: 12px;
+    background-color: #C0C0C0; color: #000080
+}
+#ToSave
+{
+    width: 800px;
+    font-family: "Consolas";
+    font-size: 12px;
+    background-color: #C0C0C0; color: #000080
+}
+
+        
+#divMain {
+    padding-top: 20px;
+    padding-left: 20px;
+}
+.popdate
+{
+    width: 100px;
+    font-family: Calibri;
+    font-size: .8em;
+}
+.std_text
+{
+    font-family: Calibri;
+    font-size: .8em;
+}
+        

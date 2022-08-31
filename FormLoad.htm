@@ -1,0 +1,436 @@
+﻿<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+
+    <script src="Scripts/App.js" type="text/javascript"></script>
+    <script src="Scripts/App_SideBar.js" type="text/javascript"></script>
+    <script src="Scripts/Lookup.js" type="text/javascript"></script>
+    <script src="Scripts/LookupArrays.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
+    <title></title>
+
+</head>
+
+<script type="text/javascript">
+
+    $(document).ready(function () //
+    {
+        Action_Start();
+    });
+
+
+
+    function Action_Start() //
+    {
+        var url = window.location.search.substring(1);  //  ?UserID=Cathy&TableID=Projects&RecordID=23
+
+        var UserID = GetURLParameter('UserID');
+        var TableID = GetURLParameter('TableID');
+        var RecordID = GetURLParameter('RecordID');
+
+        //("Action_Start()\n" + url + "\n" + UserID + "\n" + TableID + "\n" + RecordID);
+
+        Action_AjaxLoad("FormLoad.aspx", "Main", "DivMain", UserID, TableID, RecordID) //
+
+        // Action_AjaxLoad("FormLoad.aspx", "Detail", "DivDetail", UserID, TableID, RecordID) //
+
+    }
+
+
+    function Action_AjaxLoad(ActionApi, Mode, DivID, UserID, TableID, RecordID) //
+    {
+        
+        //alert("Action_Ajax().\n" + ActionApi + "\n" + ActionMode + "\n" + DivID + UserID + "\n" + TableID + "\n" + RecordID);
+
+        Url = "FormLoad.aspx?Mode=" + Mode + "&DivID=" + DivID + "&UserID=" + UserID + "&TableID=" + TableID + "&RecordID=" + RecordID;
+
+
+        $.ajax({
+            type: 'POST',
+            url: Url,
+            dataType: 'text',
+            async: false,    // wait. one call at a time
+            data:
+            {
+
+            },
+            success: function (ajaxData) //
+            {
+
+                // alert(ajaxData.substring(1, 20));
+
+                var e = document.getElementById(DivID);   // divMain or divDetail
+                e.innerHTML = ajaxData;
+                Action_Init();  // this one. load cbo after form loaded.
+
+                //if (ajaxData == "")
+                //if (ajaxData.indexOf("[ERROR]") > -1)  // some error
+
+
+            },
+
+            error: function (xhr, ajaxOptions, error) //
+            {
+                alert("AJAX ERROR: " + xhr.status);
+            }
+
+        });
+
+    }
+
+
+    function DoEdit(theControl) //
+    {
+        var fValue, cStatus, controlInfo;
+
+        controlInfo = theControl.id + "~" + theControl.value;
+
+        // document.getElementById("Alert").value = controlInfo;        // reset for each control display
+        cStatus = ValidateControl(theControl.id, theControl.value)      // One at a time. Only modified controls
+
+        if (cStatus == "") //
+        {
+
+            fValue = theControl.value;
+            fValue = fValue.replace("~", " ");               // ~ is reserved, not allow as data.
+
+            // alert("@100. FormLoad.htm. DoEdit()\nHandle #,&")
+
+            fValue = fValue.replace("#", "⌘");            // # will break data. when pass to c#. 08-04-2022
+            fValue = fValue.replace("&", "⌘⌘");          // & will break data. 08-04-2022
+
+            controlInfo = theControl.id + "~" + fValue;      // add to pass the Value too
+
+            document.getElementById("ToSave").value = document.getElementById("ToSave").value + "|" + controlInfo;
+            theControl.style.backgroundColor = "bisque";
+            document.getElementById(theControl.id).title = theControl.value;
+            document.getElementById("ButtonSave").disabled = false;
+
+        }
+        else //
+        {
+            // document.getElementById("Alert").value = controlInfo + " - " + cStatus;
+            theControl.style.backgroundColor = "#FF8F66";            // ignore the controlID
+            document.getElementById(theControl.id).title = cStatus;
+            document.getElementById("ButtonSave").disabled = true;
+
+        }
+
+    }
+
+    function ValidateControl(controlID, controlValue) //
+    {
+        // alert("@100. FormLoad.htm. DoEdit()\nOne at a time. Only modified control")
+        // return "" if ok. return error message if not ok.
+
+        var status = "", cInfo, msg, vCode;
+
+        //  alert(controlID + " - " + controlValue);
+        //  ProjectID=10~14~T_214|ProjectID=10~14~T_214|
+
+        cInfo = controlID.split("~");
+        //   alert(cInfo[0] + " - " + cInfo[1] + " - " + cInfo[2] ) ; 
+
+        if (document.getElementById(controlID).value == "") //
+        {
+            return status; // ok. blank is acceptable value
+        }
+        else //
+        {
+            // The first character is the code for dataType T=text, N=number, D=date 
+            vCode = cInfo[2].substring(0, 1);
+
+            switch (vCode)//
+            {
+                case "N":
+                    if (isNumber(controlValue) == false) //
+                    {
+                        document.getElementById(controlID).style.backgroundColor = "#FF8F66";
+                        status = "Invalid number. ";
+                    }
+                    break;
+
+
+                case "D":
+                    msg = isDate(controlValue);
+                    if (msg != "") {
+                        document.getElementById(controlID).style.backgroundColor = "#FF8F66";
+                        status = "Invalid Date. " + msg;
+                    }
+                    break;
+            }
+
+        }
+        //if (status != "") alert(status);
+        return status;
+
+    }
+    function Action_Save() //
+    {
+        var ToSave = document.getElementById("ToSave").value;                     // decodeURIComponent()
+        var TableID = document.getElementById("_TableID").value;
+        var RecordID = document.getElementById("_RecordID").value;
+        var UserID = document.getElementById("_UserID").value;
+
+        //alert("@100. Start. Action_Save().\n" + document.getElementById("ToSave").value);
+
+        // var validation (WHOLE PAGE)  = "";     // 0804.  don't do the whole page validation any morejust the field that changed, to save
+        document.getElementById("ButtonSave").disabled = true;
+
+        if (document.getElementById("ToSave").value != "") //
+        {
+            // alert("Here.\n" + ToSave);
+            // var toSave = encodeURIComponent(document.getElementById("ToSave").value);              // decodeURIComponent()
+            // alert("@100. Call Ajax Now. Action_Save()\n" + ToSave + "\n" + TableID + "\n" + RecordID + "\n" + UserID + "\n" + ToSave);
+            Action_AjaxSave("FormSave.aspx", "SAVE", TableID, RecordID, UserID, ToSave) //
+        }
+
+    }
+
+
+    function Action_AjaxSave(ActionApi, Mode, TableID, RecordID, UserID, ToSave) //
+    {
+
+        // alert("@100\nSTART. Action_AjaxSave().\n" + ActionApi + "\n" + UserID + "\n" + TableID + "\n" + RecordID + "\n" + ToSave);
+
+        Url = "FormSave.aspx?UserID=" + UserID + "&TableID=" + TableID + "&RecordID=" + RecordID + "&ToSave=" + ToSave;
+        //alert("2. Action_AjaxSave(). Before Save.\n" + Url);
+
+        $.ajax({
+            type: 'POST',
+            url: Url,
+            dataType: 'text',
+            async: false,    // one call at a time
+            // data: { data1: value1, data2: value2, data3: value3 },
+            data:
+            {
+
+            },
+            success: function (ajaxData) //
+            {
+
+                // alert("Response./n" + ajaxData);
+                // var e = document.getElementById("DivHeader");   // divMain or divDetail
+                //e.innerHTML = ajaxData;
+                //e.style.display = "block";
+                //e.innerHTML = "<p style='color:blue;text-align:center;font-size=11px'>Update completed.</p>";
+
+                UpdateControl(ajaxData);
+
+            },
+
+            error: function (xhr, ajaxOptions, error) //
+            {
+                alert("AJAX ERROR: " + xhr.status);
+            }
+
+        });
+
+    }
+
+    function UpdateControl(controlsToUpdate) //
+    {
+        // After Saved is done. now we need to set back ground color to green to indicate they are saved
+        // alert(controlsToUpdate);    // controlsToUpdate is list of controlIDs successfully updated.
+        // |ProjectID=23~10~T_210~55555|ProjectID=23~11~__211~GA                // normal case
+        // |ProjectID=23~10~T_210:ERROR|1000. Invalid column name [Zip]|        // error case
+
+        var IsThere;
+        var controlID, iControlHasError, iError = 0, iOk = 0, IsError = false, ExecMessage = "", msg;
+
+        // Split each field by |
+        var controls = controlsToUpdate.split("|");   // ProjectID=23~10~T_210:ERROR|1000. Invalid column name [test].
+        var chop;
+
+        for (var i = 0; i < controls.length; i++) //
+        {
+            if (controls[i] != "") //
+            {
+                if (controls[i].indexOf(":ERROR") >= 0) // RowUpdate:ERROR|0900. Please contact 2015-04-01@15:26.NB58050
+                {   // then there should be a second control
+                    chop = controls[i].split(":");
+                    controlID = chop[0];
+                    // chop[1] = 'ERROR....';
+                    ExecMessage = controls[1];
+                    alert(controlID + ' - ' + ExecMessage);   // the error
+
+                    var e = document.getElementById(controlID);
+                    if (e) // exist
+                    {
+                        e.style.backgroundColor = "#FF4500";
+                        e.title = ExecMessage;
+                        // var eValue = e.value;
+                    }
+
+                }
+                else //
+                {
+                    // no error
+                    controlID = controls[i].replace("|", "");
+                    var e = document.getElementById(controlID);
+                    if (e) // exist
+                    {
+                        iOk = iOk + 1;
+                        e.style.backgroundColor = "#D0ECF0";
+                    }
+
+
+                }
+            }
+
+        }
+
+        if (ExecMessage == "") //
+        {
+            //if (iOk > 0) msg = "Successfully updated " + iOk + " values.";
+            if (iOk > 0) msg = "Successfully updated.";
+            document.getElementById("DivHeader").value = msg;
+        }
+        else //
+        {
+            //msg = "Updated " + iOk + " values. Failed " + iError + ". " + ExecMessage;
+            msg = "Updated " + iOk + " values. There is also some error - please contact developer group.";
+            document.getElementById("DivHeader").value = msg;
+            //parent.ShakeIt();  // works
+        }
+
+        document.getElementById("ToSave").value = "";
+        document.getElementById("DivHeader").value = msg;
+
+
+    }
+
+
+    function Action_Init() //
+    {
+        //alert("Action_Init(). \nNeed to run AFTER the form loaded.");
+        // Initilize date Jquery
+        $('.popdate').each(function () {
+            $(this).datepicker({ dateFormat: 'mm/dd/yy' });
+        });
+
+        // ---------------------------------------------------------------------------------------------------
+        // IMPORTANT. The name of the element is the Category Name (in the array items) that will be populated
+        var cboCategory, cboID, cboValue;
+        var cbo, x, i, t = "";
+        x = document.querySelectorAll(".myCbo");
+        for (i = 0; i < x.length; i++) //
+        {
+            // alert(x[i].id + ' - ' + x[i].name);
+            cboID = x[i].id;
+            cboCategory = x[i].name;   // IMPORTANT. The name of the element is the Category Name in the array items that will populate
+            cbo = document.getElementById(cboID);
+            cboValue = cbo.options[cbo.selectedIndex].text;
+
+            Cbo_Populate(cboCategory, cboID, cboValue);    // in Lookup.js
+        }
+
+        document.getElementById("ButtonSave").disabled = true;
+
+
+    }
+
+    function GetURLParameter(sParam) //
+    {
+
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++) {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam) {
+                return sParameterName[1];
+            }
+        }
+
+    }
+
+    /*
+    $(document).ready(function () {
+    var ele = document.getElementById("divLog"); // .style.display = block
+    ele.style.display = "none";
+    });
+    */
+
+
+
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+<body bgcolor="#DCDCDC">
+
+    <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="leftMenu">
+        <button onclick="closeLeftMenu()" class="w3-bar-item w3-button w3-large">&times;</button>
+        <a href="#" class="w3-bar-item w3-button">Dashboard</a>
+        <a href="#" class="w3-bar-item w3-button">Documentation</a>
+    </div>
+
+    <div class="w3-sidebar w3-bar-block w3-card w3-animate-right" style='display:none;right:0;' id="rightMenu">
+        <button onclick="closeRightMenu()" class="w3-bar-item w3-button w3-large">&times;</button>
+
+        <div id="DivRight" class="w3-container">
+
+            <p>Feature coming soon</p>
+
+        </div>
+
+
+    </div>
+
+
+
+    <div class="w3-teal">
+
+        <!--  <button class="w3-button w3-teal w3-small w3-left"  onclick="openLeftMenu()" >&#9776;</button>-->
+        <button class="w3-button w3-grey w3-small w3-left">&#9776;</button>
+        <button class="w3-button w3-teal w3-small w3-right" onclick="openRightMenu()">&#9776;</button>
+
+    </div>
+
+    <!-- ---------------------------------------------- -->
+
+    <form id="ThisForm">
+
+        <div id="DivForm">
+
+            <div id="DivHeader"></div>
+            <div id="DivMain" class="w3-responsive"></div>
+            <div id="DivDetail"></div>
+
+            <br />
+            <div>
+                <!-- Moved <input id="ToSave"  type="text" />  -->
+                <!-- <input id="ButtonSave" type="button" class="w3-right" value="Save" onclick="Action_Save()" /> -->
+            </div>
+
+            <hr />
+
+        </div>
+
+    </form>
+
+    <!-- ---------------------------------------------- -->
+    
+
+</body>
+
+
+</html>
